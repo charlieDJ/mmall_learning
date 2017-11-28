@@ -74,6 +74,38 @@ public class UserController {
         return userService.checkAnswer(username,password,answer);
     }
 
+    @RequestMapping(value = "forget_reset_password.do", method = RequestMethod.GET)
+    @ResponseBody
+    public ServerResponse<String> forgetResetPassword(String username,String passwordNew,String forgetToken){
+        return userService.forgetResetPassword(username,passwordNew,forgetToken);
+    }
+
+    @RequestMapping(value = "reset_password.do", method = RequestMethod.GET)
+    @ResponseBody
+    public ServerResponse<String> resetPassword(HttpSession session,String passwordNew,String passwordOld){
+        User user = (User) session.getAttribute(Const.CURRENT_USER);
+        if(user==null){
+            return ServerResponse.createByErrorMessage("用户未登陆");
+        }
+        return userService.resetPassword(passwordNew,passwordOld,user);
+    }
+
+    @RequestMapping(value = "update_infomation.do", method = RequestMethod.GET)
+    @ResponseBody
+    public ServerResponse<User> updateInfomation(HttpSession session,User user){
+        User currentUser = (User) session.getAttribute(Const.CURRENT_USER);
+        if(currentUser==null){
+            return ServerResponse.createByErrorMessage("用户未登陆");
+        }
+        user.setId(currentUser.getId());
+        user.setUsername(currentUser.getUsername());
+        ServerResponse<User> response = userService.updateInfomation(user);
+        if(response.isSuccess()){
+            session.setAttribute(Const.CURRENT_USER,response.getData());
+        }
+        return response;
+    }
+
 
 
 }
